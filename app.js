@@ -63,25 +63,49 @@ var sentimentResponses = [];
 var forbidden;
 var numberOfTimeouts = 0;
 
-function getScores(var q) {
+var articles = 0;
+var articleName = [];
+var datePublished = [];
+var score = [];
+
+function callthis(q, begin_date, end_date) {
+	articles = 0;
+	// TODO: initialize arrays to null if james doesn't want to use articles as an index
+	var differenceInDates = end_date - begin_date;
+	begin_date *= 10000;
+	begin_date += 101;
+	end_date *= 10000;
+	end_date += 1231;
+	
+	if (differenceInDates >= 3) {
+		differenceInDates /= 3;
+		differenceInDates = differenceInDates | 0;
+		differenceInDates *= 10000;
+		
+		getScores(q, begin_date, begin_date + differenceInDates);
+		getScores(q, begin_date + differenceInDates, begin_date + 2*differenceInDates);
+		getScores(q, begin_date + 2*differenceInDates, end_date);
+		
+	} else {
+		getScores(q, begin_date, end_date);
+	}
+}
+
+function getScores(q, begin_date, end_date) {
+	var q = "war";
+	var begin_date = "19300101";
+	var end_date = "20100101";
 	do {
 		console.log("Attempting to get body\n");
 		request.get({
 			url: "https://api.nytimes.com/svc/search/v2/articlesearch.json",
 			qs: {
 				'api-key': "bc500cd222c46649f60f333c6523236",
-				'q': q,
-				'fl': "lead_paragraph,abstract,headline"
+				'q': q, // "war",
+				'begin_date': begin_date, // "19300101",
+				'end_date': end_date, // "19400101",
+				'fl': "lead_paragraph,abstract,headline,pub_date"
 			},
-			/*
-			qs: {
-				'api-key': "bc500cd222c46649f60f333c6523236",
-				'q': "trump bad",
-				'begin_date': "19300101",
-				'end_date': "19400101",
-				'fl': "lead_paragraph,abstract,headline"
-			},
-			*/
 		}, function(err, response, body) {
 			if (body.charAt(0) == '<') {
 				forbidden = true;
@@ -110,11 +134,11 @@ function getScores(var q) {
 				totalWords = 0;
 				console.log("\n\t\tArticle %d\n", i + 1)
 				if (body.response.docs[i].headline.main) {  
-					console.log("header:%s\n", body.response.docs[i].headline.main);
+					console.log("headline:%s\n", body.response.docs[i].headline.main);
 					result = sentiment(body.response.docs[i].headline.main);
 					totalScore += result.score;
 					totalWords += WordCount(body.response.docs[i].headline.main);
-					console.log("header score:%d\n", result.score);
+					console.log("headline score:%d\n", result.score);
 				}
 			  
 				if (body.response.docs[i].lead_paragraph) {
@@ -133,8 +157,19 @@ function getScores(var q) {
 					console.log("abstract score:%d\n", result.score);
 				}
 				
+				totalWords += 10;
 				totalScore /= totalWords;
 				console.log("total score:%d", totalScore);
+				if (totalScore < -.1 || totalScore > .1) {
+					articleName[articles] = body.response.docs[i].headline.main;
+					datePublished[articles] = body.response.docs[i].pub_date;
+					score[articles] = totalScore;
+					articles++;
+				}
+			}
+			
+			for (i = 0; i < articles; i++) {
+				console.log("name:%s\t\tdate published:%s\t\tscore:%d\n", articleName[i], datePublished[i], score[i]);
 			}
 		})
 	} while (forbidden && numberOfTimeouts < 5);
@@ -144,21 +179,8 @@ function WordCount(str) {
   return str.split(" ").length;
 }
 
-
-/*console.log("\nheadline:\n");
-  console.log(body.response.docs[0].headline.main);
-  console.log("\nlead_paragraph:\n")
-  console.log(body.response.docs[0].lead_paragraph);
-  console.log("\nabstract:\n")
-  console.log(body.response.docs[0].abstract);*/
-
-//var sentiment = require('sentiment');
-//var result = sentiment('');
-//console.dir(result);
-
-
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+  console.log('App listening on port 3000');
 });
 
 module.exports = app;

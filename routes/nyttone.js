@@ -9,6 +9,7 @@ router.get('/nyttone*', function (req, res) {
     hol2 = res;
     callthis(req.query.searchterm, parseInt(req.query.begindate), parseInt(req.query.enddate));
 });
+
 var goodCode=0;
 function onFinish() {
     goodCode++;
@@ -16,7 +17,7 @@ function onFinish() {
     {
         console.log("Executing good code.");
         goodCode = 0;
-        hol2.render('nyttone', { articleName: articleName, datePublished: datePublished, score: score, articles: articles });
+        hol2.render('nyttone', { articleName: articleName, datePublished: datePublished, score: score, articles: articles, beginDate: hol1.query.begindate, endDate: hol1.query.enddate });
    }
   
 }

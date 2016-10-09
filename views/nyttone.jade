@@ -1,45 +1,95 @@
-extends layout
+doctype html
+html
+	head
+		title= title
+		link(rel='stylesheet', href='/stylesheets/style.css')
+		script(src="/javascripts/p5.js")
+		script(src="/javascripts/vis.js")
+		link(rel='stylesheet', type="text/css" ,href='/stylesheets/vis.css')
 
-block content
-	h1= NytRoute
-	p 
-		table
-			thead 
-				tr
-					th Article Name
-					th Date Published
-					th Tone
-			tbody
-			-for(var i=0;i<articles;++i){
-				tr
-					td #{articleName[i]}
-					td #{datePublished[i]}
-					-if(score[i] >= .3) {
-					td Extremly Positive
-					-} else if (score[i] >= .1) {
-					td Very Positive
-					-} else if (score[i] >= .07) {
-					td Positive
-					-} else if (score[i] <= -.3) {
-					td Extremly Negative
-					-} else if (score[i] <= -.1) {
-					td Very Negative
-					-} else if (score[i] <= -.07) {
-					td Negative
-					-}					
-			-}
-	form( action="/nyttone",method="get")
-		input(type="text", placeholder="Search Topic", name="searchterm")
-		select(id="begindate",name="begindate")
-			-for(var y=1851;y<=2016;++y){
-			option(value = "#{y}") 
-				p "#{y}"
-			-}
-		select(id="enddate",name="enddate")
-			-for(var y=1851;y<=2016;++y){
-			option(value = "#{y}", selected="selected") 
-				p "#{y}"
-			-}
-		input(type="submit" ,value="Submit")
+	body
+		h1= NytRoute
+		#timeline
+		script.
+			var articleNum = !{JSON.stringify(articles)};
+			var articleNames = !{JSON.stringify(articleName)};
+			var articleScore = !{JSON.stringify(score)};
+			var datePub = !{JSON.stringify(datePublished)};
+			var container = document.getElementById('timeline');
+			var dateBegin = !{JSON.stringify(beginDate)};
+			var dateEnd = !{JSON.stringify(endDate)};
+
+			// Create a DataSet (allows two way data-binding)
+			var items = new vis.DataSet;
+			for(var i=0; i<articleNum ;++i)
+			{
+				var articleClass = "neutral";
+				if(articleScore[i] <= -.3){
+					articleClass = "veryNegative";
+				}else if(articleScore[i] <= -.1){
+					articleClass = "negative";
+				}else if(articleScore[i] <= -.07){
+					articleClass = "somewhatNegative";
+				}else if(articleScore[i] >= 0.3){
+					articleClass = "veryPositive";
+				}else if(articleScore[i] >= 0.1){
+					articleClass = "positive"
+				}else if(articleScore[i] >= .07){
+					articleClass = "somewhatPositive";
+				}
+
+				items.add( {id: i+1, content: articleNames[i], start: datePub[i],className: articleClass} );
+			}
+
+			// Configuration for the Timeline
+			var options = {
+			start: dateBegin,
+			end: dateEnd
+			};
+
+			// Create a Timeline
+			var timeline = new vis.Timeline(container, items, options);
+
+		.mainform
+			p 
+				#canvaslocation
+				table
+					thead 
+						tr
+							th	Article Name
+							th	Date Published
+							th	Score
+					tbody
+					-for(var i=0;i<articles;++i){
+						tr
+							td #{articleName[i]}
+							td #{datePublished[i]}
+							-if(score[i] >= .3) {
+							td Extremly Positive
+							-} else if (score[i] >= .1) {
+							td Very Positive
+							-} else if (score[i] >= .07) {
+							td Positive
+							-} else if (score[i] <= -.3) {
+							td Extremly Negative
+							-} else if (score[i] <= -.1) {
+							td Very Negative
+							-} else if (score[i] <= -.07) {
+							td Negative
+							-}					
+					-}
+			form(method="get", action="/nyttone")
+				input(type="text", placeholder="Search Topic", name="searchterm")
+				select(id="begindate",name="begindate")
+					-for(var y=1851;y<=2016;++y){
+					option(value = "#{y}") 
+						p	"#{y}"
+					-}
+				select(id="enddate",name="enddate")
+					-for(var y=1851;y<=2016;++y){
+					option(value = "#{y}", selected="selected") 
+						p	"#{y}"
+					-}
+				input(type="submit" ,value="Submit")
 	
 	

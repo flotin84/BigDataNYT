@@ -4,6 +4,42 @@ body {
   background-image: url("/images/wb.jpg");
 }
 
+#canvaslocation{
+	margin: auto;
+}
+
+.forum {
+	clear: both
+}
+.vis-item.veryNegative {
+	color: #9e2222;
+	background-color: #9e2222;
+}
+.vis-item-content{
+	color: black;
+}
+.vis-item.negative {
+	color: #ff6a00;
+	background-color: #ff6a00;
+}
+.vis-item.somewhatNegative {
+	color: #c1ab2c;
+	background-color: #c1ab2c;
+}
+.vis-item.veryPositive {
+	color: #2fc12c;
+	background-color: #2fc12c;
+	
+}
+.vis-item.positive {
+	color: #45c12c;
+	background-color: #45c12c;
+}
+.vis-item.somewhatPositive {
+	color: #68c12c;
+	background-color: #68c12c;
+
+}
 a {
   color: #00B7FF;
 }

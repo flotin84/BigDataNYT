@@ -1,10 +1,11 @@
 var express = require('express');
 var router = express.Router();
 
-var hol1
-var hol2
+var hol1 = 0;
+var hol2 = 0;
 
 router.get('/nyttone*', function (req, res) {
+	console.log("router.get1");
     hol1 = req;
     hol2 = res;
     callthis(req.query.searchterm, parseInt(req.query.begindate), parseInt(req.query.enddate));
@@ -12,18 +13,21 @@ router.get('/nyttone*', function (req, res) {
 });
 var goodCode=0;
 function onFinish() {
+	console.log("onfinish %d", goodCode);
     goodCode++;
+	console.log("onfinish kek %d", goodCode);
     if (goodCode > 2)
     {
         console.log("Excuting good code.");
         goodCode = 0;
         console.log("\n\n\nArticle:%s, %s, %s, %d\n\n", articles, articleName[0], datePublished[0], score[0]);
         hol2.render('nyttone', { articleName: articleName, datePublished: datePublished, score: score, articles: articles });
-    }
+   }
   
 }
 
 router.get('/nyttone', function (req, res) {
+	console.log("router.get2");
     res.render('nyttone');
 });
 
@@ -33,7 +37,7 @@ var sentiment = require('sentiment');
 var RateLimiter = require('limiter').RateLimiter;
 var limiter = new RateLimiter(1, 1000);
 var sentimentResponses = [];
-var forbidden;
+var forbidden = 0;
 var numberOfTimeouts = 0;
 
 var articles = 0;
@@ -43,7 +47,9 @@ var score = [];
 
 
 function callthis(q, begin_date, end_date,callback) {
+	console.log("callthis");
     articles = 0;
+	console.log("articles set to zero %d", articles);
     var differenceInDates = end_date - begin_date;
     begin_date *= 10000;
     begin_date += 101;
@@ -67,6 +73,7 @@ function callthis(q, begin_date, end_date,callback) {
 }
 
 function getScores(q, begin_date, end_date) {
+	console.log("getscores");
     do {
         limiter.removeTokens(1, function () {
             console.log("Attempting to get body\n");
@@ -81,6 +88,7 @@ function getScores(q, begin_date, end_date) {
                     'fl': "lead_paragraph,abstract,headline,pub_date,type_of_material"
                 },
             }, function (err, response, body) {
+				console.log("getscores2");
 
                 if (body.charAt(0) == '<') {
                     forbidden = true;
@@ -93,25 +101,31 @@ function getScores(q, begin_date, end_date) {
                 body = JSON.parse(body);
 
                 console.log(body);
+	
 
-                if (body.response) {
-                    if (body.response.meta.hits == 0) {
-                        forbidden = true;
-                        numberOfTimeouts++;
-                        return true;
-                    }
-                } else {
-                    forbidden = true;
-                    numberOfTimeouts++;
-                    return true;
+				if (body == "{ message: 'API rate limit exceeded' }") {
+					onFinish();
+					return true;
+				}
+				
+                if (!body.response) {
+					onFinish();
+					return true;
+                } 
+				
+				
+				if (body.response.meta.hits == 0) {
+                    onFinish();
+					return true;
                 }
 				
-
                 var result;
                 var totalScore;
                 var totalWords;
-
-                for (var i = 0; i < 10; i++) {
+				
+				var loopamount = body.response.meta.hits < 10 ? body.response.meta.hits : 10;
+                
+				for (var i = 0; i < loopamount; i++) {
                     totalScore = 0;
                     totalWords = 0;
                     console.log("\n\t\tArticle %d\n", i + 1)
@@ -143,12 +157,14 @@ function getScores(q, begin_date, end_date) {
                     totalScore /= totalWords;
                     console.log("total score:%d", totalScore);
                     if (totalScore < -.07 || totalScore > .07) {
+						console.log("articles before %d", articles);
                         articleName[articles] = body.response.docs[i].headline.main;
                         datePublished[articles] = body.response.docs[i].pub_date;
                         // only first 10 characters of datePublished necessary
                         datePublished[articles] = datePublished[articles].substring(0, 10);
                         score[articles] = totalScore;
                         articles++;
+						console.log("articles incremented %d", articles);
                     }
                 }
 

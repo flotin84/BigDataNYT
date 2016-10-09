@@ -8,15 +8,27 @@ block content
 				tr
 					th	Article Name
 					th	Date Published
-					th	Score
+					th	Tone
 			tbody
 			-for(var i=0;i<articles;++i){
 				tr
-					td "#{articleName[i]}"
-					td "#{datePublished[i]}"			
-					td "#{score[i].toPrecision(3)}"
+					td #{articleName[i]}
+					td #{datePublished[i]}
+					-if(score[i] >= .3) {
+					td Extremly Positive
+					-} else if (score[i] >= .1) {
+					td Very Positive
+					-} else if (score[i] >= .07) {
+					td Positive
+					-} else if (score[i] <= -.3) {
+					td Extremly Negative
+					-} else if (score[i] <= -.1) {
+					td Very Negative
+					-} else if (score[i] <= -.07) {
+					td Negative
+					-}					
 			-}
-	form(method="get", action="/nyttone")
+	form( action="/nyttone",method="get")
 		input(type="text", placeholder="Search Topic", name="searchterm")
 		select(id="begindate",name="begindate")
 			-for(var y=1851;y<=2016;++y){

@@ -7,18 +7,15 @@ var hol2 = 0;
 router.get('/nyttone*', function (req, res) {
     hol1 = req;
     hol2 = res;
-	console.log("Session ID %s requesting %s", req.session, req.query.searchterm);
     callthis(req.query.searchterm, parseInt(req.query.begindate), parseInt(req.query.enddate));
-    
 });
 var goodCode=0;
 function onFinish() {
     goodCode++;
     if (goodCode > 2)
     {
-        console.log("Excuting good code.");
+        console.log("Executing good code.");
         goodCode = 0;
-        //console.log("\n\n\nArticle:%s, %s, %s, %d\n\n", articles, articleName[0], datePublished[0], score[0]);
         hol2.render('nyttone', { articleName: articleName, datePublished: datePublished, score: score, articles: articles });
    }
   
@@ -92,7 +89,7 @@ function getScores(q, begin_date, end_date) {
 
                 body = JSON.parse(body);
 
-                console.log(body);
+                //console.log(body);
 	
 				if (body == "{ message: 'API rate limit exceeded' }") {
 					onFinish();

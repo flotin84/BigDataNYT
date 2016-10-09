@@ -2,13 +2,13 @@ extends layout
 
 block content
 	h1= NytRoute
-	p Welcome to nytone
+	p 
 		table
 			thead 
 				tr
-					th	Article Name
-					th	Date Published
-					th	Tone
+					th Article Name
+					th Date Published
+					th Tone
 			tbody
 			-for(var i=0;i<articles;++i){
 				tr
@@ -33,12 +33,12 @@ block content
 		select(id="begindate",name="begindate")
 			-for(var y=1851;y<=2016;++y){
 			option(value = "#{y}") 
-				p	"#{y}"
+				p "#{y}"
 			-}
 		select(id="enddate",name="enddate")
 			-for(var y=1851;y<=2016;++y){
 			option(value = "#{y}", selected="selected") 
-				p	"#{y}"
+				p "#{y}"
 			-}
 		input(type="submit" ,value="Submit")
 	

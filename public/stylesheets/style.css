@@ -1,7 +1,7 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-
+  background-image: url("/images/wb.jpg");
 }
 
 a {
@@ -9,11 +9,16 @@ a {
 }
 
 table{
+	border-collapse: collapse;
+	border: 1px solid black;
+	padding: 10px;
 	width: 100%;
-	float: left
+	float: left;
 }
 
 tr {
+	padding: 10px;
+	border-bottom: 1px solid black;
 	width: 75px;
-	height: 50px
+	height: 50px;
 }

@@ -1,3 +1,4 @@
+// http://stackoverflow.com/questions/10919650/accessing-express-js-local-variables-in-client-side-javascript
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -10,9 +11,7 @@ var routes = require('./routes/index');
 var nyttones = require('./routes/nyttone');
 var users = require('./routes/users');
 
-
 var app = express();
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -27,7 +26,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-app.use('/',nyttones);
+app.use('/', nyttones);
 app.use('/users', users);
 
 
@@ -66,16 +65,8 @@ app.use(function(err, req, res, next) {
   });
 });
 
-app.use(session({
-	genid: function(req) {
-		return genuuid()
-	},
-	secret: 'akjsncansajvb'
-}))
-
-
-app.listen(3000, function () {
-    console.log('Example app listening on port 3000!');
+app.listen(process.env.PORT || 3000, function(){
+  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
 });
 
 module.exports = app;

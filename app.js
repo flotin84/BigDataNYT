@@ -57,6 +57,9 @@ app.use(function(err, req, res, next) {
   });
 });
 
+// -------------------------------------------------------------------
+// Between the lines, james
+
 var request = require('request');
 var sentiment = require('sentiment');
 var RateLimiter = require('limiter').RateLimiter;
@@ -191,6 +194,8 @@ function getScores(q, begin_date, end_date) {
 function WordCount(str) { 
   return str.split(" ").length;
 }
+
+// ---------------------------------------------------------------------------------------
 
 app.listen(3000, function () {
   console.log('App listening on port 3000');

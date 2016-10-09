@@ -4,7 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
+var session = require('express-session');
 
 var routes = require('./routes/index');
 var nyttones = require('./routes/nyttone');
@@ -66,7 +66,12 @@ app.use(function(err, req, res, next) {
   });
 });
 
-
+app.use(session({
+	genid: function(req) {
+		return genuuid()
+	},
+	secret: 'akjsncansajvb'
+}))
 
 
 app.listen(3000, function () {

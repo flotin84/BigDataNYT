@@ -5,29 +5,26 @@ var hol1 = 0;
 var hol2 = 0;
 
 router.get('/nyttone*', function (req, res) {
-	console.log("router.get1");
     hol1 = req;
     hol2 = res;
+	console.log("Session ID %s requesting %s", req.session, req.query.searchterm);
     callthis(req.query.searchterm, parseInt(req.query.begindate), parseInt(req.query.enddate));
     
 });
 var goodCode=0;
 function onFinish() {
-	console.log("onfinish %d", goodCode);
     goodCode++;
-	console.log("onfinish kek %d", goodCode);
     if (goodCode > 2)
     {
         console.log("Excuting good code.");
         goodCode = 0;
-        console.log("\n\n\nArticle:%s, %s, %s, %d\n\n", articles, articleName[0], datePublished[0], score[0]);
+        //console.log("\n\n\nArticle:%s, %s, %s, %d\n\n", articles, articleName[0], datePublished[0], score[0]);
         hol2.render('nyttone', { articleName: articleName, datePublished: datePublished, score: score, articles: articles });
    }
   
 }
 
 router.get('/nyttone', function (req, res) {
-	console.log("router.get2");
     res.render('nyttone');
 });
 
@@ -47,9 +44,7 @@ var score = [];
 
 
 function callthis(q, begin_date, end_date,callback) {
-	console.log("callthis");
     articles = 0;
-	console.log("articles set to zero %d", articles);
     var differenceInDates = end_date - begin_date;
     begin_date *= 10000;
     begin_date += 101;
@@ -73,10 +68,8 @@ function callthis(q, begin_date, end_date,callback) {
 }
 
 function getScores(q, begin_date, end_date) {
-	console.log("getscores");
     do {
         limiter.removeTokens(1, function () {
-            console.log("Attempting to get body\n");
             request.get({
                 url: "https://api.nytimes.com/svc/search/v2/articlesearch.json",
                 qs: {
@@ -88,7 +81,6 @@ function getScores(q, begin_date, end_date) {
                     'fl': "lead_paragraph,abstract,headline,pub_date,type_of_material"
                 },
             }, function (err, response, body) {
-				console.log("getscores2");
 
                 if (body.charAt(0) == '<') {
                     forbidden = true;
@@ -102,7 +94,6 @@ function getScores(q, begin_date, end_date) {
 
                 console.log(body);
 	
-
 				if (body == "{ message: 'API rate limit exceeded' }") {
 					onFinish();
 					return true;
@@ -128,49 +119,41 @@ function getScores(q, begin_date, end_date) {
 				for (var i = 0; i < loopamount; i++) {
                     totalScore = 0;
                     totalWords = 0;
-                    console.log("\n\t\tArticle %d\n", i + 1)
                     if (body.response.docs[i] && body.response.docs[i].headline.main) {
-                        console.log("headline:%s\n", body.response.docs[i].headline.main);
-                        /*result = sentiment(body.response.docs[i].headline.main);
+                        result = sentiment(body.response.docs[i].headline.main);
                         totalScore += result.score;
                         totalWords += WordCount(body.response.docs[i].headline.main);
-                        console.log("headline score:%d\n", result.score);*/
                     }
                     
                     if (body.response.docs[i].lead_paragraph) {
-                        console.log("lead_paragraph:%s\n", body.response.docs[i].lead_paragraph);
                         result = sentiment(body.response.docs[i].lead_paragraph);
                         totalScore += result.score;
                         totalWords += WordCount(body.response.docs[i].lead_paragraph);
-                        console.log("lead_paragraph score:%d\n", result.score);
                     }
 
                     if (body.response.docs[i].abstract) {
-                        console.log("abstract:%s\n", body.response.docs[i].abstract);
                         result = sentiment(body.response.docs[i].abstract);
                         totalScore += result.score;
                         totalWords += WordCount(body.response.docs[i].abstract);
-                        console.log("abstract score:%d\n", result.score);
                     }
 
                     totalWords += 10;
                     totalScore /= totalWords;
-                    console.log("total score:%d", totalScore);
                     if (totalScore < -.07 || totalScore > .07) {
-						console.log("articles before %d", articles);
                         articleName[articles] = body.response.docs[i].headline.main;
                         datePublished[articles] = body.response.docs[i].pub_date;
                         // only first 10 characters of datePublished necessary
                         datePublished[articles] = datePublished[articles].substring(0, 10);
                         score[articles] = totalScore;
                         articles++;
-						console.log("articles incremented %d", articles);
                     }
                 }
 
+				/*
                 for (i = 0; i < articles; i++) {
                     console.log("name:%s\t\tdate published:%s\t\tscore:%d\n", articleName[i], datePublished[i], score[i]);
                 }
+				*/
                 onFinish();
             })
         });

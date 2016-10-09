@@ -1,10 +1,22 @@
 extends layout
 
 block content
-	h1= title
-	p Welcome to New York Tone
-
-	form( action="/nyttone",method="get")
+	h1= NytRoute
+	p Welcome to nytone
+		table
+			thead 
+				tr
+					th	Article Name
+					th	Date Published
+					th	Score
+			tbody
+			-for(var i=0;i<articles;++i){
+				tr
+					td "#{articleName[i]}"
+					td "#{datePublished[i]}"			
+					td "#{score[i].toPrecision(3)}"
+			-}
+	form(method="get", action="/nyttone")
 		input(type="text", placeholder="Search Topic", name="searchterm")
 		select(id="begindate",name="begindate")
 			-for(var y=1851;y<=2016;++y){

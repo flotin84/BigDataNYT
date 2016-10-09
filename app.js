@@ -79,7 +79,7 @@ var end_date = 2016;
 
 callthis(q, begin_date, end_date);
 
-function callthis(q, begin_date, end_date) {
+function callthis(q, begin_date, end_date, callback) {
 	articles = 0;
 	var differenceInDates = end_date - begin_date;
 	begin_date *= 10000;
@@ -97,9 +97,9 @@ function callthis(q, begin_date, end_date) {
 		getScores(q, begin_date + 2*differenceInDates, end_date);
 		
 	} else {
-		
 		getScores(q, begin_date, end_date);
 	}
+	callback();
 }
 
 function getScores(q, begin_date, end_date) {
